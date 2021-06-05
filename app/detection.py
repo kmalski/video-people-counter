@@ -1,6 +1,8 @@
 
 from abc import ABC, abstractmethod
 from imutils.object_detection import non_max_suppression
+from tkinter import ttk
+from PIL import Image, ImageTk
 import numpy as np
 import imutils
 import cv2
@@ -8,12 +10,13 @@ import cv2
 
 class Detector(ABC):
 
-    def __init__(self):
+    def __init__(self, path: str):
+        self._path = path
         self._hog = cv2.HOGDescriptor()
         self._hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
     @abstractmethod
-    def detect(self, path: str) -> None:
+    def detect(self, panel: ttk.Label) -> None:
         pass
 
     def single_frame_detect(self, image):
@@ -32,13 +35,13 @@ class Detector(ABC):
 
 class ImageDetector(Detector):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, path: str):
+        super().__init__(path)
 
-    def detect(self, path: str) -> None:
+    def detect(self, panel: ttk.Label) -> None:
         result = []
-        image = cv2.imread(path)
-        image = imutils.resize(image, width=min(720, image.shape[1]))
+        image = cv2.imread(self._path)
+        image = imutils.resize(image, width=min(800, image.shape[1]))
 
         if len(image) <= 0:
             return
@@ -48,18 +51,20 @@ class ImageDetector(Detector):
         for (xA, yA, xB, yB) in result:
             cv2.rectangle(image, (xA, yA), (xB, yB), (0, 255, 0), 2)
 
-        cv2.imshow("Image", image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(image)
+        image = ImageTk.PhotoImage(image)
+        panel.configure(image=image)
+        panel.image = image
 
 
 class VideoDetector(Detector):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, path: str):
+        super().__init__(path)
 
-    def detect(self, path: str) -> None:
-        cap = cv2.VideoCapture(path)
+    def detect(self, panel: ttk.Label) -> None:
+        cap = cv2.VideoCapture(self._path)
 
         while cap.isOpened():
             ret, frame = cap.read()
@@ -72,10 +77,5 @@ class VideoDetector(Detector):
 
             for (xA, yA, xB, yB) in result:
                 cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
-            cv2.imshow("Video", frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        cap.release()
-        cv2.destroyAllWindows()
+        # TODO: add frame to passed panel arg
