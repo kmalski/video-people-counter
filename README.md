@@ -9,3 +9,7 @@ Programs created for university course called Image Analysis and Processing
     - with Git Bash: `. counter-env/Scripts/activate`
 1. Install dependencies: ```pip install -r requirements.txt```
 1. Run application: ```python ./app/app.py```
+
+## Contributors:
+- [Konrad Malski](https://github.com/kmalski)
+- [Damian Płóciennik](https://github.com/Vectrom)

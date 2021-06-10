@@ -1,4 +1,3 @@
-
 from abc import ABC, abstractmethod
 from imutils.object_detection import non_max_suppression
 from tkinter import ttk
